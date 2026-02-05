@@ -1,0 +1,15 @@
+# Backup files
+*.backup*
+*.bak
+
+# User configs
+.local/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Test artifacts
+test-*.sh
