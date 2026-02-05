@@ -152,9 +152,10 @@ echo $PATH | grep claude
 # Add to PATH if needed (add to ~/.zshrc or ~/.bashrc)
 export PATH="$HOME/.local/bin:$PATH"
 
-# Check tmux session manually
-tmux attach -t ai-coding
+# Check tmux session manually (replace 'my-project' with your folder name)
+tmux attach -t AI-my-project
 # Look at the Claude pane - any error messages?
+# Or list all sessions: tmux ls
 ```
 
 ### "ANTHROPIC_API_KEY not found"
@@ -280,11 +281,15 @@ tmux -V
 
 **Solution:**
 ```bash
-# Kill existing session
-tmux kill-session -t ai-coding
+# Session name is AI-{folder-name}, e.g., AI-my-project
+# List sessions to see the exact name
+tmux ls
+
+# Kill existing session (replace 'my-project' with your folder)
+tmux kill-session -t AI-my-project
 
 # Or attach to it instead
-tmux attach -t ai-coding
+tmux attach -t AI-my-project
 
 # The ai() function should handle this automatically
 # If not, check if the function is correct
@@ -297,8 +302,9 @@ type ai
 
 **Solution:**
 ```bash
-# Kill session and restart
-tmux kill-session -t ai-coding
+# Kill session and restart (session name is AI-{folder-name})
+# List sessions first: tmux ls
+tmux kill-session -t AI-my-project  # replace with your actual session name
 ai
 
 # If still wrong, check ai() function
@@ -458,12 +464,10 @@ source /path/to/tmux-ai-workspace/scripts/ai-function.sh >> ~/.bashrc
 env | grep AI_
 
 # Should see:
-# AI_SESSION_NAME=ai-coding
 # AI_CLAUDE_MODE=dangerous
 
 # If not, add to shell config
 echo 'export AI_CLAUDE_MODE="dangerous"' >> ~/.zshrc
-echo 'export AI_SESSION_NAME="ai-coding"' >> ~/.zshrc
 
 # Reload
 source ~/.zshrc
@@ -609,8 +613,8 @@ top
 # or
 htop
 
-# Kill specific pane if needed
-tmux kill-pane -t ai-coding:1.1
+# Kill specific pane if needed (replace AI-my-project with your session name)
+tmux kill-pane -t AI-my-project:1.1
 ```
 
 ### Memory issues

@@ -305,30 +305,28 @@ tmux send-keys -t "$session_name:1.3" "npm run dev" C-m
 
 ## Shell Integration
 
-### Changing Session Name
+### Session Naming
 
-Edit environment variable:
+Session names are automatically generated based on your current directory:
+- Running `ai` in `/home/user/my-project` creates session `AI-my-project`
+- Running `ai` in `/workspace/frontend-app` creates session `AI-frontend-app`
+- Special characters and spaces are automatically sanitized
 
-```bash
-# In ~/.zshrc or ~/.bashrc
-export AI_SESSION_NAME="my-project"
-```
+This means you can run separate AI workspaces for different projects simultaneously!
 
 ### Per-Project Workspaces
 
-Create project-specific functions:
+Create project-specific shortcuts:
 
 ```bash
 # Frontend project
 ai-frontend() {
-  export AI_SESSION_NAME="frontend-dev"
   cd ~/projects/frontend
   ai
 }
 
 # Backend project
 ai-backend() {
-  export AI_SESSION_NAME="backend-dev"
   cd ~/projects/backend
   ai
 }
@@ -344,8 +342,11 @@ Using zsh hooks:
 # In ~/.zshrc
 chpwd() {
   # Auto-start AI workspace when entering project directory
+  local folder_name=$(basename "$PWD" | tr ' ' '-' | tr -cd '[:alnum:]-_')
+  local session_name="AI-${folder_name}"
+
   if [[ "$PWD" == "$HOME/projects/myapp" ]]; then
-    if ! tmux has-session -t ai-coding 2>/dev/null; then
+    if ! tmux has-session -t "$session_name" 2>/dev/null; then
       ai
     fi
   fi

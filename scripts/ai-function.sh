@@ -6,13 +6,16 @@
 # Works in both bash and zsh
 
 # Configuration variables (customizable)
-SESSION_NAME="${AI_SESSION_NAME:-ai-coding}"
 CLAUDE_MODE="${AI_CLAUDE_MODE:-dangerous}"
 START_DIR="${AI_START_DIR:-$PWD}"
 
 ai() {
-  local session_name="$SESSION_NAME"
   local start_dir="$PWD"
+  # Create dynamic session name: "AI folder-name"
+  local folder_name=$(basename "$start_dir")
+  # Clean folder name: replace spaces and special chars with hyphens for tmux compatibility
+  folder_name=$(echo "$folder_name" | tr ' ' '-' | tr -cd '[:alnum:]-_')
+  local session_name="AI-${folder_name}"
 
   # Check if tmux is installed
   if ! command -v tmux &> /dev/null; then

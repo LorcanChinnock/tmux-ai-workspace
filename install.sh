@@ -378,7 +378,6 @@ EOF
 
   # Set environment variables for customization
   cat >> "$shell_config" << EOF
-export AI_SESSION_NAME="ai-coding"
 export AI_CLAUDE_MODE="$CLAUDE_MODE"
 
 EOF

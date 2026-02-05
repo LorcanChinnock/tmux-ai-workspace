@@ -22,6 +22,7 @@ The installer (`install.sh`) orchestrates the entire setup process:
 **Shell Function (`scripts/ai-function.sh`)**
 - Defines the `ai()` function that creates the tmux workspace
 - Creates a 3-pane tmux layout: left 50% (Claude CLI), top-right 25% (terminal), bottom-right 25% (lazygit)
+- Dynamically names sessions as "AI-{folder-name}" based on current directory
 - Launches Claude CLI based on `AI_CLAUDE_MODE` environment variable
 - All panes start in current directory (`$PWD`)
 
@@ -86,11 +87,11 @@ The `ai()` function is injected into shell configs with this structure:
 # ========================================
 # tmux-ai-workspace
 # ========================================
-export AI_SESSION_NAME="ai-coding"
 export AI_CLAUDE_MODE="dangerous"  # or "safe" or custom flags
 
 ai() {
   # function body from scripts/ai-function.sh
+  # Session name is dynamically created as "AI-{folder-name}"
 }
 
 # Tmux helper aliases
@@ -132,9 +133,10 @@ All original configs are backed up with timestamps before modification:
 ## Environment Variables
 
 The installer respects these environment variables for customization:
-- `AI_SESSION_NAME`: tmux session name (default: "ai-coding")
 - `AI_CLAUDE_MODE`: Claude CLI flags (default: "dangerous")
 - `AI_START_DIR`: Starting directory (default: `$PWD`)
+
+Note: Session names are dynamically generated as "AI-{folder-name}" based on the current directory basename, with special characters sanitized for tmux compatibility.
 
 ## Testing Strategy
 
