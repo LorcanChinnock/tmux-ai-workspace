@@ -86,11 +86,11 @@ tk <name>    # Kill a specific tmux session
 
 | Platform | Status | Package Manager |
 |----------|--------|----------------|
-| macOS | ✅ Tested | Homebrew |
-| Ubuntu/Debian | ✅ Tested | apt |
-| Fedora/RHEL | ✅ Tested | yum/dnf |
-| Arch Linux | ✅ Tested | pacman |
-| WSL2 | ✅ Tested | apt (via Ubuntu) |
+| macOS | 🔄 In Progress | Homebrew |
+| Ubuntu/Debian | ❌ Not Tested | apt |
+| Fedora/RHEL | ❌ Not Tested | yum/dnf |
+| Arch Linux | ❌ Not Tested | pacman |
+| WSL2 | ❌ Not Tested | apt (via Ubuntu) |
 
 ## Customization
 
