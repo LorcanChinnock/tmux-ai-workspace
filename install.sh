@@ -9,7 +9,33 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source platform detection utilities
-source "$SCRIPT_DIR/scripts/detect-platform.sh"
+DETECT_PLATFORM_PATH="$SCRIPT_DIR/scripts/detect-platform.sh"
+if [[ ! -f "$DETECT_PLATFORM_PATH" ]]; then
+  # If running via curl | bash (e.g., /dev/fd/*), fall back to current working dir.
+  if [[ -f "$PWD/scripts/detect-platform.sh" ]]; then
+    DETECT_PLATFORM_PATH="$PWD/scripts/detect-platform.sh"
+  else
+    # Last resort: download the helper script from the default repo.
+    TMP_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t tmux-ai-workspace)"
+    BASE_URL="${TMUX_AI_WORKSPACE_BASE_URL:-https://raw.githubusercontent.com/LorcanChinnock/tmux-ai-workspace/main}"
+    if command -v curl >/dev/null 2>&1; then
+      curl -fsSL "$BASE_URL/scripts/detect-platform.sh" -o "$TMP_DIR/detect-platform.sh" || true
+    elif command -v wget >/dev/null 2>&1; then
+      wget -qO "$TMP_DIR/detect-platform.sh" "$BASE_URL/scripts/detect-platform.sh" || true
+    fi
+
+    if [[ -f "$TMP_DIR/detect-platform.sh" ]]; then
+      DETECT_PLATFORM_PATH="$TMP_DIR/detect-platform.sh"
+    else
+      echo "Error: scripts/detect-platform.sh not found."
+      echo "If you ran via curl, try cloning and running ./install.sh from the repo."
+      echo "Or set TMUX_AI_WORKSPACE_BASE_URL to a raw GitHub URL for your fork."
+      exit 1
+    fi
+  fi
+fi
+
+source "$DETECT_PLATFORM_PATH"
 
 # Configuration variables (set by interactive Q&A)
 CLAUDE_MODE="dangerous"
