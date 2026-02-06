@@ -21,7 +21,7 @@ A one-command setup for an optimized tmux environment designed for AI pair progr
 ### One-Line Install
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/USER/tmux-ai-workspace/main/install.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/LorcanChinnock/tmux-ai-workspace/main/install.sh)
 ```
 
 ### Manual Install
