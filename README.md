@@ -136,18 +136,29 @@ source ~/.zshrc  # or ~/.bashrc for bash
 
 ## Uninstall
 
+### Quick Uninstall
+
 ```bash
 cd tmux-ai-workspace
 ./uninstall.sh
 ```
 
+### What Gets Removed
+
 The uninstaller will:
 - Remove the `ai()` function from your shell config
-- Optionally remove `~/.tmux.conf`
-- Optionally restore from backups
-- Optionally remove TPM
+- Remove tmux helper aliases (`ta`, `tl`, `tk`)
+- Optionally remove `~/.tmux.conf` (with prompt)
+- Optionally remove TPM (with prompt)
+- Create timestamped backups of all modified files
 
-All original files are backed up with timestamps before any changes.
+### Detailed Documentation
+
+See [UNINSTALL.md](docs/UNINSTALL.md) for:
+- Complete manual uninstall steps
+- Backup and restoration procedures
+- Verification checklist
+- Troubleshooting common issues
 
 ## Project Structure
 
@@ -165,7 +176,8 @@ tmux-ai-workspace/
 └── docs/
     ├── INSTALLATION.md    # Detailed installation guide
     ├── CUSTOMIZATION.md   # Customization guide
-    └── TROUBLESHOOTING.md # Common issues and fixes
+    ├── TROUBLESHOOTING.md # Common issues and fixes
+    └── UNINSTALL.md       # Complete uninstallation guide
 ```
 
 ## Contributing
