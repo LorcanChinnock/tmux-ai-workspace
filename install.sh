@@ -7,32 +7,62 @@ set -euo pipefail
 
 # Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ASSET_ROOT="$SCRIPT_DIR"
+BASE_URL="${TMUX_AI_WORKSPACE_BASE_URL:-https://raw.githubusercontent.com/LorcanChinnock/tmux-ai-workspace/main}"
+TMP_ASSET_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t tmux-ai-workspace-assets)"
+
+cleanup_tmp_assets() {
+  rm -rf "$TMP_ASSET_DIR"
+}
+
+trap cleanup_tmp_assets EXIT
+
+download_asset() {
+  local rel_path=$1
+  local target="$TMP_ASSET_DIR/$rel_path"
+  local target_dir
+  target_dir="$(dirname "$target")"
+  mkdir -p "$target_dir"
+
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsSL "$BASE_URL/$rel_path" -o "$target" || return 1
+  elif command -v wget >/dev/null 2>&1; then
+    wget -qO "$target" "$BASE_URL/$rel_path" || return 1
+  else
+    return 1
+  fi
+
+  [[ -f "$target" ]]
+}
+
+resolve_asset_path() {
+  local rel_path=$1
+  local local_path="$ASSET_ROOT/$rel_path"
+
+  if [[ -f "$local_path" ]]; then
+    echo "$local_path"
+    return 0
+  fi
+
+  if download_asset "$rel_path"; then
+    echo "$TMP_ASSET_DIR/$rel_path"
+    return 0
+  fi
+
+  return 1
+}
 
 # Source platform detection utilities
-DETECT_PLATFORM_PATH="$SCRIPT_DIR/scripts/detect-platform.sh"
-if [[ ! -f "$DETECT_PLATFORM_PATH" ]]; then
-  # If running via curl | bash (e.g., /dev/fd/*), fall back to current working dir.
-  if [[ -f "$PWD/scripts/detect-platform.sh" ]]; then
-    DETECT_PLATFORM_PATH="$PWD/scripts/detect-platform.sh"
-  else
-    # Last resort: download the helper script from the default repo.
-    TMP_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t tmux-ai-workspace)"
-    BASE_URL="${TMUX_AI_WORKSPACE_BASE_URL:-https://raw.githubusercontent.com/LorcanChinnock/tmux-ai-workspace/main}"
-    if command -v curl >/dev/null 2>&1; then
-      curl -fsSL "$BASE_URL/scripts/detect-platform.sh" -o "$TMP_DIR/detect-platform.sh" || true
-    elif command -v wget >/dev/null 2>&1; then
-      wget -qO "$TMP_DIR/detect-platform.sh" "$BASE_URL/scripts/detect-platform.sh" || true
-    fi
+if [[ -f "$PWD/scripts/detect-platform.sh" ]]; then
+  ASSET_ROOT="$PWD"
+fi
 
-    if [[ -f "$TMP_DIR/detect-platform.sh" ]]; then
-      DETECT_PLATFORM_PATH="$TMP_DIR/detect-platform.sh"
-    else
-      echo "Error: scripts/detect-platform.sh not found."
-      echo "If you ran via curl, try cloning and running ./install.sh from the repo."
-      echo "Or set TMUX_AI_WORKSPACE_BASE_URL to a raw GitHub URL for your fork."
-      exit 1
-    fi
-  fi
+DETECT_PLATFORM_PATH="$(resolve_asset_path scripts/detect-platform.sh || true)"
+if [[ -z "$DETECT_PLATFORM_PATH" ]]; then
+  echo "Error: scripts/detect-platform.sh not found."
+  echo "If you ran via curl, try cloning and running ./install.sh from the repo."
+  echo "Or set TMUX_AI_WORKSPACE_BASE_URL to a raw GitHub URL for your fork."
+  exit 1
 fi
 
 source "$DETECT_PLATFORM_PATH"
@@ -326,7 +356,15 @@ install_tmux_config() {
   print_header "Installing Tmux Configuration"
 
   # Copy tmux config
-  cp "$SCRIPT_DIR/configs/tmux.conf" ~/.tmux.conf
+  local tmux_config_src
+  tmux_config_src="$(resolve_asset_path configs/tmux.conf || true)"
+  if [[ -z "$tmux_config_src" ]]; then
+    print_error "Unable to locate configs/tmux.conf (local or remote)"
+    print_info "Set TMUX_AI_WORKSPACE_BASE_URL if using a fork."
+    exit 1
+  fi
+
+  cp "$tmux_config_src" ~/.tmux.conf
   print_success "Installed ~/.tmux.conf"
 
   # Apply color theme
@@ -409,7 +447,15 @@ export AI_CLAUDE_MODE="$CLAUDE_MODE"
 EOF
 
   # Append the ai function from the script
-  cat "$SCRIPT_DIR/scripts/ai-function.sh" | sed -n '/^ai()/,/^}/p' >> "$shell_config"
+  local ai_function_src
+  ai_function_src="$(resolve_asset_path scripts/ai-function.sh || true)"
+  if [[ -z "$ai_function_src" ]]; then
+    print_error "Unable to locate scripts/ai-function.sh (local or remote)"
+    print_info "Set TMUX_AI_WORKSPACE_BASE_URL if using a fork."
+    exit 1
+  fi
+
+  sed -n '/^ai()/,/^}/p' "$ai_function_src" >> "$shell_config"
 
   # Add aliases
   cat >> "$shell_config" << 'EOF'
@@ -554,9 +600,15 @@ show_next_steps() {
   echo "  • ${GREEN}tk <name>${NC} - Kill tmux session"
   echo ""
   echo "Documentation:"
-  echo "  • README: $SCRIPT_DIR/README.md"
-  echo "  • Customization: $SCRIPT_DIR/docs/CUSTOMIZATION.md"
-  echo "  • Troubleshooting: $SCRIPT_DIR/docs/TROUBLESHOOTING.md"
+  if [[ -f "$ASSET_ROOT/README.md" ]]; then
+    echo "  • README: $ASSET_ROOT/README.md"
+    echo "  • Customization: $ASSET_ROOT/docs/CUSTOMIZATION.md"
+    echo "  • Troubleshooting: $ASSET_ROOT/docs/TROUBLESHOOTING.md"
+  else
+    echo "  • README: $BASE_URL/README.md"
+    echo "  • Customization: $BASE_URL/docs/CUSTOMIZATION.md"
+    echo "  • Troubleshooting: $BASE_URL/docs/TROUBLESHOOTING.md"
+  fi
   echo ""
   echo -e "${ORANGE}Happy coding! 🚀${NC}"
   echo ""
