@@ -2,9 +2,9 @@
 
 > Streamlined tmux workspace for AI-assisted development with Claude CLI
 
-A one-command setup for an optimized tmux environment designed for AI pair programming. Features a 3-pane layout with Claude CLI, terminal, and git UI, all with mouse support and vim keybindings.
+A one-command setup for an optimized tmux environment designed for AI pair programming. Features a 3-pane layout with Claude CLI, terminal, and git UI, all with mouse support and vim keybindings
 
-<img width="1917" height="1142" alt="Screenshot 2026-02-05 at 22 44 16" src="https://github.com/user-attachments/assets/174b4062-1e2d-4866-88ec-4bc09d2d1760" />
+<img width="1266" height="775" alt="image" src="https://github.com/user-attachments/assets/c0ba6d7a-8444-4cc4-b8fd-7a26876f1895" />
 
 ## Features
 
