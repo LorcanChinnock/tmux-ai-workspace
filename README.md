@@ -86,7 +86,7 @@ tk <name>    # Kill a specific tmux session
 
 | Platform | Status | Package Manager |
 |----------|--------|----------------|
-| macOS | 🔄 In Progress | Homebrew |
+| macOS | ✅ Tested | Homebrew |
 | Ubuntu/Debian | ❌ Not Tested | apt |
 | Fedora/RHEL | ❌ Not Tested | yum/dnf |
 | Arch Linux | ❌ Not Tested | pacman |
